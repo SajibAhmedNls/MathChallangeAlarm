@@ -363,8 +363,12 @@ private fun ScrollableWheelTimePicker(
             val roundUp = listState.firstVisibleItemScrollOffset > itemHeightPx / 2
             val centerIndex = (listState.firstVisibleItemIndex + if (roundUp) 1 else 0)
                 .coerceIn(0, range.size - 1)
-            onValueChange(range[centerIndex])
-            listState.animateScrollToItem(centerIndex)
+            if (range[centerIndex] != selectedValue) onValueChange(range[centerIndex])
+            // Only snap when misaligned: snapping is itself a scroll, and re-running it while
+            // already aligned loops forever, keeping the list "scrolling" so taps get swallowed.
+            val aligned = listState.firstVisibleItemIndex == centerIndex &&
+                listState.firstVisibleItemScrollOffset == 0
+            if (!aligned) listState.animateScrollToItem(centerIndex)
         }
     }
 
