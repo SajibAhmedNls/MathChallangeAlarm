@@ -168,11 +168,12 @@ Releases are built, signed and published by GitHub Actions ([`release.yml`](.git
 | `STORE_PASSWORD` | Keystore password |
 | `KEY_PASSWORD` | Key password (key alias must be `upload`) |
 
-**Releases are automatic:** every push or merged pull request to `main` publishes a new release. You can also start one by hand from *Actions → Production Release → Run workflow* (optionally with a custom version prefix). The workflow:
+**Releases are automatic:** every push or merged pull request to `main` first runs **CI** (unit tests and a debug build). **Only if CI passes**, the release workflow:
 
-1. runs the unit tests,
-2. builds a signed APK and AAB,
-3. creates the tag and a GitHub Release with auto-generated notes.
+1. builds a signed APK and AAB from the exact commit CI tested,
+2. creates the tag and a GitHub Release with auto-generated notes.
+
+If CI fails, nothing is released. You can also start a release by hand from *Actions → Production Release → Run workflow* (optionally with a custom version prefix); manual runs execute the unit tests themselves.
 
 The workflow refuses to run without the signing secrets. This prevents publishing an APK signed with a throwaway key that users couldn't upgrade.
 

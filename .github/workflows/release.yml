@@ -2,10 +2,13 @@ name: Production Release
 
 # Version scheme: <year>.<month>.<patch>.<run number>, e.g. 2026.10.1.7
 # The run number also becomes the Android versionCode, so every release upgrades cleanly.
-# Runs automatically on every push/merge to main, or manually from the Actions tab.
+# Runs automatically after the CI workflow passes on a push/merge to main,
+# or manually from the Actions tab.
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -25,11 +28,20 @@ jobs:
   release:
     name: Build, sign & publish
     runs-on: ubuntu-latest
+    # Automatic runs: only when CI succeeded for a push to main (not for pull requests)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    env:
+      # Release exactly the commit CI tested
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 0
 
       - name: Set up JDK 21
@@ -81,7 +93,9 @@ jobs:
           echo "STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
           echo "KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
 
+      # Automatic releases already passed CI; manual ones still run the tests here
       - name: Run unit tests
+        if: github.event_name == 'workflow_dispatch'
         run: ./gradlew :app:testDebugUnitTest --stacktrace
 
       - name: Build signed APK and App Bundle
@@ -111,7 +125,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          target_commitish: ${{ github.sha }}
+          target_commitish: ${{ env.RELEASE_SHA }}
           name: HeyUtho ${{ steps.version.outputs.name }}
           prerelease: false
           make_latest: true
