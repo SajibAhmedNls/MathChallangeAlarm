@@ -32,6 +32,14 @@ data class MathChallengeState(
     val isShaking: Boolean = false
 )
 
+data class NextAlarmInfo(
+    val countdown: String,
+    val time: String,
+    val label: String
+)
+
+const val DEFAULT_ALARM_LABEL = "Wake up"
+
 class AlarmViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: AlarmRepository
     private val alarmScheduler: AlarmScheduler = AlarmScheduler(application)
@@ -49,8 +57,8 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
     private val _editingAlarm = MutableStateFlow<AlarmEntity?>(null)
     val editingAlarm: StateFlow<AlarmEntity?> = _editingAlarm.asStateFlow()
 
-    private val _timeToNextAlarm = MutableStateFlow<String?>(null)
-    val timeToNextAlarm: StateFlow<String?> = _timeToNextAlarm.asStateFlow()
+    private val _timeToNextAlarm = MutableStateFlow<NextAlarmInfo?>(null)
+    val timeToNextAlarm: StateFlow<NextAlarmInfo?> = _timeToNextAlarm.asStateFlow()
 
     init {
         val db = AppDatabase.getDatabase(application)
@@ -75,6 +83,12 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
                 updateNextAlarmCountdown(alarms)
             }
         }
+        viewModelScope.launch {
+            while (true) {
+                delay(30_000)
+                updateNextAlarmCountdown(allAlarms.value)
+            }
+        }
     }
 
     private fun seedInitialAlarms() {
@@ -84,7 +98,7 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
                 minute = 30,
                 isEnabled = true,
                 daysOfWeek = "1,2,3,4,5",
-                label = "Wake Up Sajib (Work)",
+                label = "Work days",
                 vibrate = true
             )
             val default2 = AlarmEntity(
@@ -92,7 +106,7 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
                 minute = 0,
                 isEnabled = false,
                 daysOfWeek = "6,7",
-                label = "Weekend Morning Sajib",
+                label = "Weekend",
                 vibrate = true
             )
             val id1 = repository.insertAlarm(default1)
@@ -139,12 +153,18 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
         val hours = diffMins / 60
         val mins = diffMins % 60
 
-        val timeString = if (hours > 0) {
-            "${hours}h ${mins}m"
-        } else {
-            "${mins}m"
+        val days = hours / 24
+        val timeString = when {
+            days > 0 -> "${days}d ${hours % 24}h"
+            hours > 0 -> "${hours}h ${mins}m"
+            mins > 0 -> "${mins}m"
+            else -> "less than 1m"
         }
-        _timeToNextAlarm.value = "Alarm in $timeString (${nearestAlarm.getFormattedTime()})"
+        _timeToNextAlarm.value = NextAlarmInfo(
+            countdown = timeString,
+            time = nearestAlarm.getFormattedTime(),
+            label = nearestAlarm.label
+        )
     }
 
     fun startMathChallenge(force: Boolean = false) {
@@ -230,7 +250,7 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 _mathState.value = current.copy(
                     streak = 0, // Reset!
-                    errorMessage = "Incorrect! Streak reset to 0/3. Try again!",
+                    errorMessage = "Not quite. Progress reset, try this one.",
                     isShaking = true,
                     currentInput = ""
                 )
@@ -284,7 +304,7 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         viewModelScope.launch {
             val editing = _editingAlarm.value
-            val labelText = if (label.isBlank()) "Wake Up Sajib" else label.trim()
+            val labelText = if (label.isBlank()) DEFAULT_ALARM_LABEL else label.trim()
 
             if (editing != null) {
                 val updated = editing.copy(

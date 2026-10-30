@@ -1,192 +1,204 @@
-# ⏰ uthoSajib (ওঠো সজীব) — Smart Math Wake-Up Alarm Clock
+<div align="center">
 
-[![Android CI / Beta Release](https://github.com/hisajib/uthoSajib/actions/workflows/release.yml/badge.svg)](https://github.com/hisajib/uthoSajib/actions/workflows/release.yml)
-[![Platform](https://img.shields.io/badge/Platform-Android-green.svg?logo=android)](https://www.android.com/)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-purple.svg?logo=kotlin)](https://kotlinlang.org/)
-[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20M3-blue.svg?logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
-[![Room DB](https://img.shields.io/badge/Database-Room%20SQLite-orange.svg)](https://developer.android.com/training/data-storage/room)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+<img src="app/src/main/res/drawable/ic_uthosajib_logo.jpg" width="112" alt="uthoSajib logo" />
 
-> **"ঘুম থেকে ওঠার গ্যারান্টি!"**
-> **uthoSajib** is an un-snoozeable, persistent morning wake-up smart alarm clock for Android. Designed specifically for heavy sleepers, it guarantees you wake up by requiring you to solve 3 arithmetic math problems before the alarm will ever turn off.
+# uthoSajib
 
----
+**The alarm clock you can't snooze. Solve 3 math problems to turn it off.**
 
-## 🌟 Key Features
+[![Release](https://img.shields.io/github/v/release/toufikforyou/MathChallangeAlarm?label=release&color=2563EB)](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest)
+[![CI](https://github.com/toufikforyou/MathChallangeAlarm/actions/workflows/ci.yml/badge.svg)](https://github.com/toufikforyou/MathChallangeAlarm/actions/workflows/ci.yml)
+[![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)](#requirements)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-- 🧠 **Math Challenge Lock (গণিত সমাধান চ্যালেঞ্জ)**:
-  - You cannot simply swipe, mute, or hit snooze!
-  - Must solve **3 consecutive math problems** to stop the alarm ringing.
-  - Generates clear, balanced equations with intuitive numeric keypad input.
+[**Download the latest APK**](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest) · [Report a bug](https://github.com/toufikforyou/MathChallangeAlarm/issues/new) · [Request a feature](https://github.com/toufikforyou/MathChallangeAlarm/issues/new)
 
-- 🔒 **Bulletproof Persistence (Never Stops Until Solved)**:
-  - **Survives App Kill**: Even if you swipe away the app from recent apps (task switcher), the alarm keeps ringing uninterrupted in an isolated foreground service.
-  - **Lock Screen Bypassing**: Ringing screen shows automatically over locked devices (`showWhenLocked`, `turnScreenOn`, and full-screen intent).
-  - **Reboot Resilient**: Alarms are automatically rescheduled on device boot via `BOOT_COMPLETED` broadcast receiver.
-
-- ⏰ **Intuitive Alarm Management**:
-  - Scrollable hour/minute picker with AM/PM toggle for rapid setup.
-  - Day-of-week repeat selector (e.g., Weekdays, Weekends, Everyday, or One-time).
-  - Custom alarm labels, vibration toggles, and sound preferences.
-  - One-click individual delete and "Delete All Alarms" with confirmation safeguards.
-  - Real-time digital clock display with live countdown to your next active alarm.
-
-- 🎨 **Modern Material 3 Design**:
-  - Sleek midnight dark theme (Midnight Navy, Alert Crimson, Dawn Orange, Electric Cyan).
-  - High-contrast visuals and fluid animations designed for groggy early-morning eyes.
-  - Edge-to-edge system bar integration with dynamic WindowInsets.
+</div>
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Why uthoSajib?
 
-- **Language:** [Kotlin 2.0+](https://kotlinlang.org/)
-- **UI Toolkit:** [Jetpack Compose](https://developer.android.com/jetpack/compose) with Material Design 3 (M3)
-- **Local Persistence:** [Room Database](https://developer.android.com/training/data-storage/room) with Coroutine Flow & StateFlow
-- **Background & Alarm Engine:**
-  - Android `AlarmManager` with `setExactAndAllowWhileIdle`
-  - High-priority `ForegroundService` with `mediaPlayback` type running in an isolated process (`:alarm_service`)
-  - `WakeLock` & `MediaPlayer` loop for continuous high-volume sound
-- **Architecture Pattern:** MVVM (Model-View-ViewModel) + Repository Pattern
-- **Build System:** Gradle (Kotlin DSL `.gradle.kts`) with Version Catalog (`libs.versions.toml`)
+Snooze buttons are too easy to hit half-asleep. uthoSajib makes your brain do a little work first: when the alarm rings, you have to solve **three arithmetic problems in a row** before it stops. By the time you're done, you're awake.
 
----
+It's free, open source, has no ads, needs no account, and keeps all data on your device.
 
-## 📂 Project Structure
+## Screenshots
 
-```text
-app/src/main/java/com/example/
-├── MainActivity.kt               # Main entry point & lock-screen intent handler
-├── alarm/
-│   ├── AlarmAudioPlayer.kt       # Continuous ringtone & vibration playback engine
-│   ├── AlarmLockManager.kt       # WakeLock acquisition & screen management
-│   ├── AlarmReceiver.kt          # Exact alarm receiver & BOOT_COMPLETED scheduler
-│   ├── AlarmRingingService.kt    # Isolated background ringing service
-│   ├── AlarmScheduler.kt         # AlarmManager scheduling logic
-│   └── AlarmStateHolder.kt       # State coordinator for active ringing session
-├── data/
-│   ├── AlarmDao.kt               # Room database DAO with Flow queries
-│   ├── AlarmEntity.kt            # Alarm data entity definition
-│   ├── AlarmRepository.kt        # Room data repository
-│   └── AppDatabase.kt            # Room database instance
-├── math/
-│   └── MathEngine.kt             # Randomized arithmetic equation generator
-└── ui/
-    ├── AlarmViewModel.kt         # State holder & business logic
-    ├── components/               # Keypad, Math cards, Time selectors
-    ├── dialogs/                  # Alarm creation & edit dialogs
-    ├── screens/
-    │   ├── AlarmListScreen.kt    # Main alarms list & countdown dashboard
-    │   └── AlarmRingingScreen.kt # Fullscreen math challenge solve screen
-    └── theme/                    # Color schemes, typography, and shapes
+| Alarms (light) | Alarms (dark) | Create / edit |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/alarms-light.png" width="240" alt="Alarm list in light theme" /> | <img src="docs/screenshots/alarms-dark.png" width="240" alt="Alarm list in dark theme" /> | <img src="docs/screenshots/edit-alarm.png" width="240" alt="Create alarm dialog" /> |
+
+| Math challenge | Wrong answer | Alarm stopped |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/ringing.png" width="240" alt="Ringing screen with math problem" /> | <img src="docs/screenshots/wrong-answer.png" width="240" alt="Wrong answer feedback" /> | <img src="docs/screenshots/solved.png" width="240" alt="Good morning screen" /> |
+
+## Features
+
+**Wake-up challenge**
+- Solve 3 two-digit addition or subtraction problems in a row to stop the alarm.
+- A wrong answer resets your progress, so guessing doesn't work.
+- Large on-screen keypad with haptic feedback, built for sleepy fingers.
+
+**Hard to escape**
+- Keeps ringing if you swipe the app away. Sound runs in a separate foreground service process.
+- Back button and volume keys are blocked while the alarm rings.
+- Shows over the lock screen and turns the display on.
+- Alarms are restored automatically after the phone restarts.
+
+**Simple alarm management**
+- Scroll-wheel time picker with AM/PM.
+- Repeat on any days of the week, with clear summaries like "Weekdays" or "Weekends".
+- Custom labels and per-alarm vibration.
+- "Next alarm" card with a live countdown.
+- Delete one alarm or all of them, always with confirmation.
+
+**Modern design**
+- Blue Material 3 theme with automatic light and dark mode.
+- The ringing screen is always dark, so it won't blind you in the morning.
+- Accessible: high-contrast colors, 48dp touch targets, and screen-reader labels.
+
+## Download & install
+
+1. Open the [latest release](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest) on your Android phone.
+2. Download `uthoSajib-<version>.apk`.
+3. Open the file. If Android asks, allow installs from your browser or file manager.
+4. On first launch, allow **notifications**. On Android 12+, also make sure **Alarms & reminders** is allowed for the app so alarms ring on time.
+
+> **Tip:** Some phones (Xiaomi, Oppo, Vivo, Samsung and others) aggressively stop background apps. For the most reliable alarms, set uthoSajib's battery usage to **Unrestricted** in system settings.
+
+Each release includes a `SHA256SUMS.txt` file so you can verify your download:
+
+```bash
+sha256sum -c SHA256SUMS.txt
 ```
 
----
+## Requirements
 
-## 🚀 Getting Started
+| | |
+| --- | --- |
+| Android version | 7.0 (API 24) or newer |
+| Target SDK | 36 |
+| Network | Not required |
+
+## Permissions
+
+uthoSajib only asks for what an alarm clock needs:
+
+| Permission | Why it's needed |
+| --- | --- |
+| `SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM` | Ring at exactly the time you set |
+| `POST_NOTIFICATIONS` | Show the ringing notification (Android 13+) |
+| `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_MEDIA_PLAYBACK` | Keep playing the alarm sound until you solve the challenge |
+| `USE_FULL_SCREEN_INTENT`, `DISABLE_KEYGUARD` | Show the math challenge over the lock screen |
+| `WAKE_LOCK` | Wake the phone when the alarm fires |
+| `VIBRATE` | Vibrate with the alarm |
+| `RECEIVE_BOOT_COMPLETED` | Restore your alarms after a restart |
+
+## Build from source
 
 ### Prerequisites
-- **Android Studio Ladybug (2024.2+)** or newer recommended.
-- **JDK 21** (bundled with recent Android Studio versions).
-- **Android SDK:**
-  - `compileSdk`: **36**
-  - `targetSdk`: **36**
-  - `minSdk`: **26** (Android 8.0 Oreo+)
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/hisajib/uthoSajib.git
-cd uthoSajib
-```
+- [Android Studio](https://developer.android.com/studio) (latest stable), or
+- JDK 17–25 plus the Android SDK (platform 36)
 
-### 2. Build Debug APK Locally
+### Steps
+
 ```bash
-# On Linux / macOS:
+git clone https://github.com/toufikforyou/MathChallangeAlarm.git
+cd MathChallangeAlarm
+
+# One-time: create the local debug signing key the build expects
+keytool -genkeypair -keystore debug.keystore -alias androiddebugkey \
+  -storepass android -keypass android -keyalg RSA -keysize 2048 \
+  -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
+# Build a debug APK -> app/build/outputs/apk/debug/app-debug.apk
 ./gradlew :app:assembleDebug
 
-# On Windows:
-gradlew.bat :app:assembleDebug
-```
-The output APK will be generated at:
-`app/build/outputs/apk/debug/app-debug.apk`
+# Install on a connected device or emulator
+./gradlew :app:installDebug
 
-### 3. Run Unit Tests
-```bash
+# Run unit tests
 ./gradlew :app:testDebugUnitTest
 ```
 
----
+On Windows, use `gradlew.bat` instead of `./gradlew`.
 
-## 🤖 Automated CI/CD & GitHub Releases
+## Architecture
 
-This project includes a fully automated **GitHub Actions Workflow** located at [`.github/workflows/release.yml`](.github/workflows/release.yml) to automatically compile, sign, and publish Beta APK releases directly to GitHub Releases.
+uthoSajib is a single-activity Jetpack Compose app using **MVVM** with a repository layer.
 
-### How to Trigger a New Beta Release:
-
-#### Option A: Push a Git Tag (Recommended)
-```bash
-# Create a release tag (must start with 'v')
-git tag v1.0.0-beta1
-
-# Push the tag to GitHub
-git push origin v1.0.0-beta1
+```text
+app/src/main/java/com/example/
+├── MainActivity.kt               # Entry point, lock-screen flags, screen switching
+├── alarm/
+│   ├── AlarmScheduler.kt         # AlarmManager exact scheduling + next-trigger math
+│   ├── AlarmReceiver.kt          # Fires alarms, reschedules after reboot
+│   ├── AlarmRingingService.kt    # Foreground service (separate process) that rings
+│   ├── AlarmAudioPlayer.kt       # Looping sound + vibration
+│   ├── AlarmLockManager.kt       # Persists "ringing" state across process death
+│   └── AlarmStateHolder.kt       # In-memory state for the active alarm
+├── data/                         # Room database: entity, DAO, repository
+├── math/MathEngine.kt            # Random problem generator and answer checker
+└── ui/
+    ├── AlarmViewModel.kt         # UI state, alarm CRUD, math challenge logic
+    ├── screens/                  # Alarm list, ringing / challenge screen
+    ├── dialogs/                  # Create / edit alarm dialog
+    ├── components/               # Math card, numeric keypad, repeat-day helpers
+    └── theme/                    # Blue Material 3 color schemes, type, shapes
 ```
-The GitHub Action will automatically:
-1. Check out code and setup JDK 21.
-2. Build the signed Release APK.
-3. Name it `UthoSajib-v1.0.0-beta1.apk`.
-4. Upload it to the GitHub Releases section under tag `v1.0.0-beta1`.
 
-#### Option B: Manual Run (workflow_dispatch)
-1. Go to your GitHub repository -> **Actions** tab.
-2. Select **Release Beta APK** on the left sidebar.
-3. Click **Run workflow**, enter your desired tag (e.g. `v1.0.1-beta`), and click **Run workflow**.
+**How an alarm rings:**
 
----
+1. `AlarmScheduler` registers an exact alarm with `AlarmManager.setExactAndAllowWhileIdle`.
+2. At trigger time, `AlarmReceiver` starts `AlarmRingingService`, a foreground service in its own `:alarm_service` process. Killing the UI can't stop the sound.
+3. The service posts a full-screen notification that opens `MainActivity` over the lock screen.
+4. `AlarmViewModel` runs the 3-problem challenge. Only a full streak stops the service.
 
-## 🔐 Configuring GitHub Secrets (Optional but Recommended)
+**Tech stack:** Kotlin · Jetpack Compose · Material 3 · Room · Coroutines & StateFlow · AlarmManager · Foreground services
 
-By default, the release workflow automatically generates a fallback keystore so builds succeed immediately out-of-the-box. For official distribution, you can configure your own production keystore:
+## Releasing (maintainers)
 
-1. Navigate to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-2. Click **New repository secret** and add:
+Releases are built, signed and published by GitHub Actions ([`release.yml`](.github/workflows/release.yml)).
 
-| Secret Name | Description | Example |
-|---|---|---|
-| `KEYSTORE_BASE64` | Base64-encoded string of your `.jks` file | `base64 -w 0 my-release-key.jks` |
-| `STORE_PASSWORD` | Password for your keystore | `YourStrongKeystorePassword` |
-| `KEY_PASSWORD` | Password for your key alias | `YourStrongKeyPassword` |
+**Version format:** `YEAR.MONTH.PATCH.RUN`, for example `2026.10.1.7`. The workflow run number is also the Android `versionCode`, so every release installs as an upgrade.
 
-> 💡 **How to generate the Base64 string from your terminal:**
-> ```bash
-> base64 -w 0 my-release-key.jks > keystore_base64.txt
-> # Copy the content inside keystore_base64.txt to GitHub Secrets!
-> ```
+**One-time setup:** add these repository secrets under *Settings → Secrets and variables → Actions*:
 
----
+| Secret | Value |
+| --- | --- |
+| `KEYSTORE_BASE64` | Your release keystore, base64-encoded (`base64 -i release.jks \| tr -d '\n'`) |
+| `STORE_PASSWORD` | Keystore password |
+| `KEY_PASSWORD` | Key password (key alias must be `upload`) |
 
-## 📱 Permissions Used
+**To publish a release:** open *Actions → Production Release → Run workflow*. Leave the version prefix empty to use the current month. The workflow:
 
-| Permission | Reason |
-|---|---|
-| `SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM` | Precise millisecond-level alarm triggering via AlarmManager. |
-| `POST_NOTIFICATIONS` | Ongoing ringing notifications for Android 13+. |
-| `FOREGROUND_SERVICE_MEDIA_PLAYBACK` | Reliable, un-killable audio ringing service. |
-| `USE_FULL_SCREEN_INTENT` / `DISABLE_KEYGUARD` | Shows math challenge over the lock screen immediately. |
-| `WAKE_LOCK` | Wakes up CPU and screen when the alarm goes off. |
-| `VIBRATE` | Device vibration synchronization with alarm sound. |
-| `RECEIVE_BOOT_COMPLETED` | Automatically reschedule all active alarms after phone restart. |
+1. runs the unit tests,
+2. builds a signed APK and AAB,
+3. creates the tag and a GitHub Release with auto-generated notes and SHA-256 checksums.
 
----
+The workflow refuses to run without the signing secrets. This prevents publishing an APK signed with a throwaway key that users couldn't upgrade.
 
-## 👤 Author & Support
+## Contributing
 
-- **Author:** Sajib ([@hisajib](https://github.com/hisajib))
-- **Email:** [hisajib.net@gmail.com](mailto:hisajib.net@gmail.com)
-- **Feedback & Issues:** If you encounter any bugs or have feature suggestions, please feel free to open an [Issue](https://github.com/hisajib/uthoSajib/issues).
+Contributions are welcome!
 
----
+1. Fork the repo and create a branch: `git checkout -b feature/my-change`
+2. Make your change and run `./gradlew :app:testDebugUnitTest`
+3. Open a pull request describing **what** changed and **why**. Add screenshots for UI changes.
 
-## 📄 License
+Please keep the core promise intact: the alarm must never be dismissable without solving the challenge.
 
-This project is licensed under the [MIT License](LICENSE) — see the LICENSE file for details.
+Good first contributions: translations, more problem types (multiplication, difficulty levels), custom ringtones, and UI tests.
+
+## Credits
+
+- Maintained by [@toufikforyou](https://github.com/toufikforyou)
+- Original concept by Sajib ([@hisajib](https://github.com/hisajib)). *"Utho Sajib"* means *"Wake up, Sajib"* in Bengali.
+
+## License
+
+Released under the [MIT License](LICENSE).

@@ -1,11 +1,12 @@
 package com.example.ui.dialogs
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,22 +19,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.outlined.Vibration
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,23 +47,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.data.AlarmEntity
-import com.example.ui.theme.DawnOrange
-import com.example.ui.theme.ElectricCyan
-import com.example.ui.theme.MidnightBg
-import com.example.ui.theme.MidnightCardBorder
-import com.example.ui.theme.MidnightSurface
-import com.example.ui.theme.MidnightSurfaceVariant
-import com.example.ui.theme.TextMuted
-import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.TextSecondary
+import com.example.ui.DEFAULT_ALARM_LABEL
+import com.example.ui.components.DayFullNames
+import com.example.ui.components.DayShortLabels
+import com.example.ui.components.repeatSummary
 import kotlinx.coroutines.launch
+
+private val WheelItemHeight = 52.dp
+private const val WheelVisibleItems = 3
 
 @Composable
 fun AlarmEditDialog(
@@ -80,7 +83,7 @@ fun AlarmEditDialog(
         mutableIntStateOf(h12)
     }
     var selectedMinute by remember { mutableIntStateOf(initialM) }
-    var labelText by remember { mutableStateOf(initialAlarm?.label ?: "Wake Up Sajib") }
+    var labelText by remember { mutableStateOf(initialAlarm?.label ?: DEFAULT_ALARM_LABEL) }
     var vibrateEnabled by remember { mutableStateOf(initialAlarm?.vibrate ?: true) }
 
     // Repeat days: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
@@ -90,34 +93,33 @@ fun AlarmEditDialog(
         list
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
                 .testTag("alarm_edit_dialog"),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = MidnightSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MidnightCardBorder)
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .padding(20.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (initialAlarm == null) "Set Alarm" else "Edit Alarm",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        text = if (initialAlarm == null) "New alarm" else "Edit alarm",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f)
                     )
                     IconButton(
                         onClick = onDismiss,
@@ -126,21 +128,20 @@ fun AlarmEditDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = TextMuted
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Scrollable Time Wheel Container
+                // Time picker
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MidnightBg)
-                        .border(1.dp, MidnightCardBorder, RoundedCornerShape(20.dp))
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                        .clip(MaterialTheme.shapes.large)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(vertical = 16.dp, horizontal = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -148,39 +149,33 @@ fun AlarmEditDialog(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Scrollable Hour Wheel (1 to 12)
                         ScrollableWheelTimePicker(
                             selectedValue = displayHour,
                             range = (1..12).toList(),
                             onValueChange = { displayHour = it },
-                            label = "HOUR",
+                            label = "Hour",
                             testTagPrefix = "hour_wheel"
                         )
 
                         Text(
                             text = ":",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Black,
-                            color = DawnOrange,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp)
                         )
 
-                        // Scrollable Minute Wheel (00 to 59)
                         ScrollableWheelTimePicker(
                             selectedValue = selectedMinute,
                             range = (0..59).toList(),
                             onValueChange = { selectedMinute = it },
-                            label = "MINUTE",
+                            label = "Minute",
                             isMinute = true,
                             testTagPrefix = "minute_wheel"
                         )
 
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        // AM / PM Toggle Buttons
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             AmPmButton(
                                 text = "AM",
                                 isSelected = !isPm,
@@ -197,123 +192,119 @@ fun AlarmEditDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Repeat Days Selection
-                Text(
-                    text = "REPEAT DAYS",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextSecondary,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Repeat days
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Repeat",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = repeatSummary(selectedDays),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                val dayLabels = listOf(
-                    1 to "M",
-                    2 to "T",
-                    3 to "W",
-                    4 to "T",
-                    5 to "F",
-                    6 to "S",
-                    7 to "S"
-                )
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    dayLabels.forEach { (dayIndex, dayLabel) ->
+                    DayShortLabels.forEachIndexed { index, dayLabel ->
+                        val dayIndex = index + 1
                         val isSelected = selectedDays.contains(dayIndex)
+                        val bg by animateColorAsState(
+                            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer,
+                            label = "dayBg"
+                        )
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(if (isSelected) DawnOrange else MidnightSurfaceVariant)
-                                .border(
-                                    1.dp,
-                                    if (isSelected) DawnOrange else MidnightCardBorder,
-                                    CircleShape
-                                )
+                                .weight(1f)
+                                .height(44.dp)
+                                .clip(MaterialTheme.shapes.small)
+                                .background(bg)
                                 .clickable {
                                     if (isSelected) selectedDays.remove(dayIndex)
                                     else selectedDays.add(dayIndex)
+                                }
+                                .semantics {
+                                    role = Role.Checkbox
+                                    selected = isSelected
+                                    contentDescription = DayFullNames[index]
                                 }
                                 .testTag("day_button_$dayIndex"),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = dayLabel,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) Color.White else TextSecondary
+                                style = MaterialTheme.typography.labelLarge,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Alarm Label Input
                 OutlinedTextField(
                     value = labelText,
                     onValueChange = { labelText = it },
-                    label = { Text("Alarm Label") },
+                    label = { Text("Label") },
+                    placeholder = { Text(DEFAULT_ALARM_LABEL) },
+                    leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Label, contentDescription = null) },
                     singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DawnOrange,
-                        unfocusedBorderColor = MidnightCardBorder,
-                        focusedLabelColor = DawnOrange,
-                        unfocusedLabelColor = TextMuted,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
-                    ),
+                    shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("alarm_label_input")
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Vibrate Toggle
+                // Vibrate: the whole row toggles, not just the switch
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .clip(MaterialTheme.shapes.medium)
+                        .toggleable(
+                            value = vibrateEnabled,
+                            role = Role.Switch,
+                            onValueChange = { vibrateEnabled = it }
+                        )
+                        .padding(vertical = 8.dp, horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Icon(
+                        imageVector = Icons.Outlined.Vibration,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp, end = 16.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "Vibrate", style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            text = "Vibrate on Alarm",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = TextPrimary
-                        )
-                        Text(
-                            text = "Pulsating wake-up vibration",
-                            fontSize = 12.sp,
-                            color = TextMuted
+                            text = "Pulse while the alarm rings",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-
                     Switch(
                         checked = vibrateEnabled,
-                        onCheckedChange = { vibrateEnabled = it },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = DawnOrange,
-                            uncheckedThumbColor = TextMuted,
-                            uncheckedTrackColor = MidnightSurfaceVariant
-                        ),
+                        onCheckedChange = null,
                         modifier = Modifier.testTag("vibrate_switch")
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Action Buttons (Cancel / Save)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -322,11 +313,8 @@ fun AlarmEditDialog(
                         onClick = onDismiss,
                         modifier = Modifier
                             .weight(1f)
-                            .testTag("cancel_alarm_button"),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = TextSecondary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MidnightCardBorder)
+                            .height(52.dp)
+                            .testTag("cancel_alarm_button")
                     ) {
                         Text("Cancel")
                     }
@@ -343,13 +331,10 @@ fun AlarmEditDialog(
                         },
                         modifier = Modifier
                             .weight(1f)
-                            .testTag("save_alarm_button"),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DawnOrange,
-                            contentColor = Color.White
-                        )
+                            .height(52.dp)
+                            .testTag("save_alarm_button")
                     ) {
-                        Text("Save", fontWeight = FontWeight.Bold)
+                        Text("Save alarm")
                     }
                 }
             }
@@ -369,10 +354,14 @@ private fun ScrollableWheelTimePicker(
     val coroutineScope = rememberCoroutineScope()
     val initialIndex = range.indexOf(selectedValue).coerceAtLeast(0)
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+    val itemHeightPx = with(LocalDensity.current) { WheelItemHeight.toPx() }
 
+    // With one item of padding above and below, the first visible item is the centered one.
+    // Snap to whichever item is closest to the center once the user lets go.
     LaunchedEffect(listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) {
-            val centerIndex = (listState.firstVisibleItemIndex + if (listState.firstVisibleItemScrollOffset > 40) 1 else 0)
+            val roundUp = listState.firstVisibleItemScrollOffset > itemHeightPx / 2
+            val centerIndex = (listState.firstVisibleItemIndex + if (roundUp) 1 else 0)
                 .coerceIn(0, range.size - 1)
             onValueChange(range[centerIndex])
             listState.animateScrollToItem(centerIndex)
@@ -381,45 +370,38 @@ private fun ScrollableWheelTimePicker(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(76.dp)
+        modifier = Modifier.width(72.dp)
     ) {
         Text(
             text = label,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextMuted,
-            letterSpacing = 1.sp,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 6.dp)
         )
 
         Box(
             modifier = Modifier
-                .height(144.dp)
+                .height(WheelItemHeight * WheelVisibleItems)
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            // Selected item background highlight bar
+            // Selection highlight behind the centered item
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MidnightSurfaceVariant)
-                    .border(1.dp, DawnOrange.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                    .height(WheelItemHeight)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
             )
 
             LazyColumn(
                 state = listState,
+                contentPadding = PaddingValues(vertical = WheelItemHeight),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag("${testTagPrefix}_scroll_wheel"),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Top spacing so first item can be centered
-                item {
-                    Spacer(modifier = Modifier.height(48.dp))
-                }
-
                 itemsIndexed(range) { index, itemValue ->
                     val isSelected = itemValue == selectedValue
                     val text = if (isMinute) String.format("%02d", itemValue) else itemValue.toString()
@@ -427,27 +409,25 @@ private fun ScrollableWheelTimePicker(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(WheelItemHeight)
                             .clickable {
                                 onValueChange(itemValue)
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(index)
                                 }
-                            },
+                            }
+                            .semantics { contentDescription = "$label $text" },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = text,
-                            fontSize = if (isSelected) 30.sp else 18.sp,
-                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
-                            color = if (isSelected) DawnOrange else TextSecondary.copy(alpha = 0.45f)
+                            style = if (isSelected) MaterialTheme.typography.displaySmall
+                            else MaterialTheme.typography.titleLarge,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )
                     }
-                }
-
-                // Bottom spacing so last item can be centered
-                item {
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }
@@ -461,24 +441,27 @@ private fun AmPmButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val bg by animateColorAsState(
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        label = "amPmBg"
+    )
     Box(
         modifier = modifier
-            .size(width = 50.dp, height = 36.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (isSelected) ElectricCyan else MidnightSurfaceVariant)
-            .border(
-                1.dp,
-                if (isSelected) ElectricCyan else MidnightCardBorder,
-                RoundedCornerShape(10.dp)
-            )
-            .clickable { onClick() },
+            .size(width = 56.dp, height = 48.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(bg)
+            .clickable { onClick() }
+            .semantics {
+                role = Role.RadioButton
+                selected = isSelected
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isSelected) Color.Black else TextSecondary
+            style = MaterialTheme.typography.labelLarge,
+            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+            else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

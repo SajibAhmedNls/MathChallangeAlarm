@@ -10,14 +10,18 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,7 +35,6 @@ import com.example.ui.AlarmViewModel
 import com.example.ui.dialogs.AlarmEditDialog
 import com.example.ui.screens.AlarmListScreen
 import com.example.ui.screens.AlarmRingingScreen
-import com.example.ui.theme.MidnightBg
 import com.example.ui.theme.UthoSajibTheme
 
 class MainActivity : ComponentActivity() {
@@ -64,7 +67,7 @@ class MainActivity : ComponentActivity() {
             UthoSajibTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MidnightBg
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     NotificationPermissionRequester()
 
@@ -75,24 +78,37 @@ class MainActivity : ComponentActivity() {
                     val editingAlarm by viewModel.editingAlarm.collectAsStateWithLifecycle()
                     val nextCountdown by viewModel.timeToNextAlarm.collectAsStateWithLifecycle()
 
+                    // Match status/navigation bar icons to the screen actually showing
+                    val darkBars = activeAlarm != null || isSystemInDarkTheme()
+                    DisposableEffect(darkBars) {
+                        val transparent = android.graphics.Color.TRANSPARENT
+                        val style = if (darkBars) SystemBarStyle.dark(transparent)
+                        else SystemBarStyle.light(transparent, transparent)
+                        enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                        onDispose { }
+                    }
+
                     if (activeAlarm != null) {
-                        AlarmRingingScreen(
-                            activeAlarm = activeAlarm,
-                            mathState = mathState,
-                            onKeypadDigit = { digit -> viewModel.onKeypadDigit(digit) },
-                            onKeypadBackspace = { viewModel.onKeypadBackspace() },
-                            onKeypadSubmit = { viewModel.onKeypadSubmit() },
-                            onFinishDismiss = {
-                                viewModel.resetMathChallenge()
-                                com.example.alarm.AlarmLockManager.clearRinging(this@MainActivity)
-                                com.example.alarm.AlarmRingingService.stop(this@MainActivity)
-                                AlarmStateHolder.clearRinging()
-                            }
-                        )
+                        // Always dark while ringing so a light theme doesn't blind anyone at 6 AM
+                        UthoSajibTheme(darkTheme = true) {
+                            AlarmRingingScreen(
+                                activeAlarm = activeAlarm,
+                                mathState = mathState,
+                                onKeypadDigit = { digit -> viewModel.onKeypadDigit(digit) },
+                                onKeypadBackspace = { viewModel.onKeypadBackspace() },
+                                onKeypadSubmit = { viewModel.onKeypadSubmit() },
+                                onFinishDismiss = {
+                                    viewModel.resetMathChallenge()
+                                    com.example.alarm.AlarmLockManager.clearRinging(this@MainActivity)
+                                    com.example.alarm.AlarmRingingService.stop(this@MainActivity)
+                                    AlarmStateHolder.clearRinging()
+                                }
+                            )
+                        }
                     } else {
                         AlarmListScreen(
                             alarms = alarms,
-                            nextAlarmCountdown = nextCountdown,
+                            nextAlarm = nextCountdown,
                             onToggleAlarm = { alarm -> viewModel.toggleAlarm(alarm) },
                             onEditAlarm = { alarm -> viewModel.openEditDialog(alarm) },
                             onDeleteAlarm = { alarm -> viewModel.deleteAlarm(alarm) },

@@ -1,8 +1,12 @@
 package com.example.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,56 +17,68 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.MathChallengeState
-import com.example.ui.theme.AlertCrimson
-import com.example.ui.theme.DawnOrange
-import com.example.ui.theme.ElectricCyan
-import com.example.ui.theme.MidnightBg
-import com.example.ui.theme.MidnightCardBorder
-import com.example.ui.theme.MidnightSurface
-import com.example.ui.theme.TextMuted
-import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.WakeupGreen
+import com.example.ui.theme.extendedColors
 
 @Composable
 fun MathChallengeCard(
     mathState: MathChallengeState,
     modifier: Modifier = Modifier
 ) {
+    // Horizontal shake on a wrong answer
+    val shakeOffset = remember { Animatable(0f) }
+    LaunchedEffect(mathState.isShaking) {
+        if (mathState.isShaking) {
+            shakeOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = keyframes {
+                    durationMillis = 400
+                    -24f at 50
+                    24f at 120
+                    -16f at 190
+                    16f at 260
+                    -6f at 330
+                }
+            )
+        }
+    }
+
+    val borderColor by animateColorAsState(
+        if (mathState.isShaking) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
+        label = "cardBorder"
+    )
+
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer { translationX = shakeOffset.value }
             .testTag("math_challenge_card"),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MidnightSurface
-        ),
-        border = androidx.compose.foundation.BorderStroke(
-            width = if (mathState.isShaking) 2.dp else 1.dp,
-            color = if (mathState.isShaking) AlertCrimson else MidnightCardBorder
-        )
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        border = BorderStroke(if (mathState.isShaking) 2.dp else 1.dp, borderColor)
     ) {
         Column(
             modifier = Modifier
@@ -70,117 +86,87 @@ fun MathChallengeCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header with Streak Counter
+            val problemNumber = (mathState.streak + 1).coerceAtMost(mathState.targetStreak)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "SOLVE TO STOP ALARM",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp,
-                    color = DawnOrange
+                    text = "Problem $problemNumber of ${mathState.targetStreak}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
                 )
-
                 Text(
-                    text = "${mathState.streak} / ${mathState.targetStreak} SOLVED",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = ElectricCyan
+                    text = "${mathState.streak}/${mathState.targetStreak} solved",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // 3 Progress Step Indicator Dots
+            // Segmented progress bar
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = "${mathState.streak} of ${mathState.targetStreak} problems solved"
+                    },
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 for (i in 0 until mathState.targetStreak) {
-                    val isCompleted = i < mathState.streak
-                    val isCurrent = i == mathState.streak
-
+                    val segmentColor by animateColorAsState(
+                        when {
+                            i < mathState.streak -> MaterialTheme.extendedColors.success
+                            i == mathState.streak -> MaterialTheme.colorScheme.primary
+                            else -> MaterialTheme.colorScheme.surfaceContainerHighest
+                        },
+                        label = "segment$i"
+                    )
                     Box(
                         modifier = Modifier
-                            .size(if (isCurrent) 32.dp else 26.dp)
+                            .weight(1f)
+                            .height(6.dp)
                             .clip(CircleShape)
-                            .background(
-                                when {
-                                    isCompleted -> WakeupGreen
-                                    isCurrent -> DawnOrange.copy(alpha = 0.35f)
-                                    else -> MidnightBg
-                                }
-                            )
-                            .border(
-                                width = if (isCurrent) 2.dp else 1.dp,
-                                color = when {
-                                    isCompleted -> WakeupGreen
-                                    isCurrent -> DawnOrange
-                                    else -> MidnightCardBorder
-                                },
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isCompleted) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Completed step",
-                                tint = Color.Black,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        } else {
-                            Text(
-                                text = "${i + 1}",
-                                fontSize = if (isCurrent) 14.sp else 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isCurrent) DawnOrange else TextMuted
-                            )
-                        }
-                    }
+                            .background(segmentColor)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Math Expression Display (Big and bold)
             Text(
                 text = "${mathState.currentProblem.expression} = ?",
-                fontSize = 38.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.testTag("math_expression_text")
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // User Answer Box
+            // Answer field
+            val answerBorder by animateColorAsState(
+                if (mathState.currentInput.isEmpty()) MaterialTheme.colorScheme.outline
+                else MaterialTheme.colorScheme.primary,
+                label = "answerBorder"
+            )
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.75f)
+                    .fillMaxWidth()
                     .height(64.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MidnightBg)
-                    .border(
-                        width = 1.5.dp,
-                        brush = Brush.horizontalGradient(
-                            listOf(DawnOrange.copy(alpha = 0.7f), ElectricCyan.copy(alpha = 0.7f))
-                        ),
-                        shape = RoundedCornerShape(14.dp)
-                    ),
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(2.dp, answerBorder, MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.Center
             ) {
                 if (mathState.currentInput.isEmpty()) {
                     Text(
-                        text = "Your Answer",
-                        fontSize = 18.sp,
-                        color = TextMuted,
-                        letterSpacing = 1.sp
+                        text = "Type your answer",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
@@ -188,14 +174,13 @@ fun MathChallengeCard(
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace,
-                        color = ElectricCyan,
+                        color = MaterialTheme.colorScheme.primary,
                         letterSpacing = 2.sp,
                         modifier = Modifier.testTag("math_current_input")
                     )
                 }
             }
 
-            // Error feedback banner
             AnimatedVisibility(
                 visible = mathState.errorMessage != null,
                 enter = fadeIn(),
@@ -203,12 +188,13 @@ fun MathChallengeCard(
             ) {
                 Text(
                     text = mathState.errorMessage ?: "",
-                    color = AlertCrimson,
-                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(top = 10.dp)
+                        .padding(top = 12.dp)
+                        .semantics { liveRegion = LiveRegionMode.Assertive }
                         .testTag("math_error_message")
                 )
             }
