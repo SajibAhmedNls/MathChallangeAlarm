@@ -132,7 +132,7 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 uthoSajib is a single-activity Jetpack Compose app using **MVVM** with a repository layer.
 
 ```text
-app/src/main/java/com/example/
+app/src/main/java/com/hellosajib/alarmapp/
 ├── MainActivity.kt               # Entry point, lock-screen flags, screen switching
 ├── alarm/
 │   ├── AlarmScheduler.kt         # AlarmManager exact scheduling + next-trigger math

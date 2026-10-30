@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.hellosajib.alarmapp"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.uthosajib.mthc"
+    applicationId = "com.hellosajib.alarmapp"
     minSdk = 24
     targetSdk = 36
     // CI injects these (see .github/workflows/release.yml); local builds use dev values
