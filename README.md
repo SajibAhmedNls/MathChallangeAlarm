@@ -69,12 +69,6 @@ It's free, open source, has no ads, needs no account, and keeps all data on your
 
 > **Tip:** Some phones (Xiaomi, Oppo, Vivo, Samsung and others) aggressively stop background apps. For the most reliable alarms, set uthoSajib's battery usage to **Unrestricted** in system settings.
 
-Each release includes a `SHA256SUMS.txt` file so you can verify your download:
-
-```bash
-sha256sum -c SHA256SUMS.txt
-```
-
 ## Requirements
 
 | | |
@@ -178,7 +172,7 @@ Releases are built, signed and published by GitHub Actions ([`release.yml`](.git
 
 1. runs the unit tests,
 2. builds a signed APK and AAB,
-3. creates the tag and a GitHub Release with auto-generated notes and SHA-256 checksums.
+3. creates the tag and a GitHub Release with auto-generated notes.
 
 The workflow refuses to run without the signing secrets. This prevents publishing an APK signed with a throwaway key that users couldn't upgrade.
 

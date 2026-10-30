@@ -96,8 +96,6 @@ jobs:
           fi
           cp "$APK" "dist/uthoSajib-${VERSION_NAME}.apk"
           cp "$AAB" "dist/uthoSajib-${VERSION_NAME}.aab"
-          (cd dist && sha256sum * > SHA256SUMS.txt)
-          cat dist/SHA256SUMS.txt
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -121,11 +119,10 @@ jobs:
             2. Open it and allow installing from this source if Android asks.
             3. On first launch, allow notifications and exact alarms so alarms can ring on time.
 
-            The `.aab` file is for Google Play distribution. Verify downloads with `SHA256SUMS.txt`.
+            The `.aab` file is for Google Play distribution.
           files: |
             dist/uthoSajib-${{ steps.version.outputs.name }}.apk
             dist/uthoSajib-${{ steps.version.outputs.name }}.aab
-            dist/SHA256SUMS.txt
 
       - name: Remove keystore
         if: always()
