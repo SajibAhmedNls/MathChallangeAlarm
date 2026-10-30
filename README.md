@@ -6,14 +6,14 @@
 
 **The alarm clock you can't snooze. Solve 3 math problems to turn it off.**
 
-[![Release](https://img.shields.io/github/v/release/toufikforyou/MathChallangeAlarm?label=release&color=2563EB)](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest)
-[![CI](https://github.com/toufikforyou/MathChallangeAlarm/actions/workflows/ci.yml/badge.svg)](https://github.com/toufikforyou/MathChallangeAlarm/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/SajibAhmedNls/MathChallangeAlarm?label=release&color=2563EB)](https://github.com/SajibAhmedNls/MathChallangeAlarm/releases/latest)
+[![CI](https://github.com/SajibAhmedNls/MathChallangeAlarm/actions/workflows/ci.yml/badge.svg)](https://github.com/SajibAhmedNls/MathChallangeAlarm/actions/workflows/ci.yml)
 [![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)](#requirements)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[**Download the latest APK**](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest) · [Report a bug](https://github.com/toufikforyou/MathChallangeAlarm/issues/new) · [Request a feature](https://github.com/toufikforyou/MathChallangeAlarm/issues/new)
+[**Download the latest APK**](https://github.com/SajibAhmedNls/MathChallangeAlarm/releases/latest) · [Report a bug](https://github.com/SajibAhmedNls/MathChallangeAlarm/issues/new) · [Request a feature](https://github.com/SajibAhmedNls/MathChallangeAlarm/issues/new)
 
 </div>
 
@@ -62,7 +62,7 @@ It's free, open source, has no ads, needs no account, and keeps all data on your
 
 ## Download & install
 
-1. Open the [latest release](https://github.com/toufikforyou/MathChallangeAlarm/releases/latest) on your Android phone.
+1. Open the [latest release](https://github.com/SajibAhmedNls/MathChallangeAlarm/releases/latest) on your Android phone.
 2. Download `uthoSajib-<version>.apk`.
 3. Open the file. If Android asks, allow installs from your browser or file manager.
 4. On first launch, allow **notifications**. On Android 12+, also make sure **Alarms & reminders** is allowed for the app so alarms ring on time.
@@ -101,7 +101,7 @@ uthoSajib only asks for what an alarm clock needs:
 ### Steps
 
 ```bash
-git clone https://github.com/toufikforyou/MathChallangeAlarm.git
+git clone https://github.com/SajibAhmedNls/MathChallangeAlarm.git
 cd MathChallangeAlarm
 
 # One-time: create the local debug signing key the build expects
@@ -190,8 +190,8 @@ Good first contributions: translations, more problem types (multiplication, diff
 
 ## Credits
 
-- Maintained by [@toufikforyou](https://github.com/toufikforyou)
-- Original concept by Sajib ([@hisajib](https://github.com/hisajib)). *"Utho Sajib"* means *"Wake up, Sajib"* in Bengali.
+- Created by Sajib ([@SajibAhmedNls](https://github.com/SajibAhmedNls)). *"Utho Sajib"* means *"Wake up, Sajib"* in Bengali.
+- Blue redesign and release pipeline by [@toufikforyou](https://github.com/toufikforyou)
 
 ## License
 
