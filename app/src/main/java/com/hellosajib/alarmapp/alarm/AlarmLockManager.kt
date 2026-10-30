@@ -50,7 +50,7 @@ object AlarmLockManager {
             if (!file.exists()) return null
             val lines = file.readLines()
             val id = lines.getOrNull(0)?.toIntOrNull() ?: 0
-            val label = lines.getOrNull(1) ?: "uthoSajib Alarm"
+            val label = lines.getOrNull(1) ?: "HeyUtho Alarm"
             val time = lines.getOrNull(2) ?: "07:00 AM"
             Triple(id, label, time)
         } catch (e: Exception) {

@@ -69,14 +69,6 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList()
         )
 
-        // Seed only once on initial installation
-        val prefs = application.getSharedPreferences("uthosajib_prefs", android.content.Context.MODE_PRIVATE)
-        val hasSeeded = prefs.getBoolean("has_seeded_initial_alarms_v2", false)
-        if (!hasSeeded) {
-            prefs.edit().putBoolean("has_seeded_initial_alarms_v2", true).apply()
-            seedInitialAlarms()
-        }
-
         // Periodically refresh next alarm countdown
         viewModelScope.launch {
             allAlarms.collect { alarms ->
@@ -88,30 +80,6 @@ class AlarmViewModel(application: Application) : AndroidViewModel(application) {
                 delay(30_000)
                 updateNextAlarmCountdown(allAlarms.value)
             }
-        }
-    }
-
-    private fun seedInitialAlarms() {
-        viewModelScope.launch {
-            val default1 = AlarmEntity(
-                hour = 6,
-                minute = 30,
-                isEnabled = true,
-                daysOfWeek = "1,2,3,4,5",
-                label = "Work days",
-                vibrate = true
-            )
-            val default2 = AlarmEntity(
-                hour = 8,
-                minute = 0,
-                isEnabled = false,
-                daysOfWeek = "6,7",
-                label = "Weekend",
-                vibrate = true
-            )
-            val id1 = repository.insertAlarm(default1)
-            repository.insertAlarm(default2)
-            alarmScheduler.scheduleAlarm(default1.copy(id = id1.toInt()))
         }
     }
 

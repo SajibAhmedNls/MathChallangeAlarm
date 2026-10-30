@@ -35,7 +35,7 @@ import com.hellosajib.alarmapp.ui.AlarmViewModel
 import com.hellosajib.alarmapp.ui.dialogs.AlarmEditDialog
 import com.hellosajib.alarmapp.ui.screens.AlarmListScreen
 import com.hellosajib.alarmapp.ui.screens.AlarmRingingScreen
-import com.hellosajib.alarmapp.ui.theme.UthoSajibTheme
+import com.hellosajib.alarmapp.ui.theme.HeyUthoTheme
 
 class MainActivity : ComponentActivity() {
     private val viewModel: AlarmViewModel by viewModels()
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         handleAlarmIntent(intent)
 
         setContent {
-            UthoSajibTheme {
+            HeyUthoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
                     if (activeAlarm != null) {
                         // Always dark while ringing so a light theme doesn't blind anyone at 6 AM
-                        UthoSajibTheme(darkTheme = true) {
+                        HeyUthoTheme(darkTheme = true) {
                             AlarmRingingScreen(
                                 activeAlarm = activeAlarm,
                                 mathState = mathState,
@@ -149,7 +149,7 @@ class MainActivity : ComponentActivity() {
 
     private fun checkAndRestoreRingingState() {
         if (com.hellosajib.alarmapp.alarm.AlarmLockManager.isRinging(this)) {
-            val info = com.hellosajib.alarmapp.alarm.AlarmLockManager.getRingingInfo(this) ?: Triple(0, "uthoSajib", "07:00 AM")
+            val info = com.hellosajib.alarmapp.alarm.AlarmLockManager.getRingingInfo(this) ?: Triple(0, "HeyUtho", "07:00 AM")
             if (AlarmStateHolder.activeAlarm.value == null) {
                 AlarmStateHolder.setRinging(
                     ActiveAlarmData(

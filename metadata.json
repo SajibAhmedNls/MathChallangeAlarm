@@ -1,5 +1,5 @@
 {
-  "name": "uthoSajib",
+  "name": "HeyUtho",
   "description": "Smart alarm clock that wakes you up by requiring 3 consecutive math problems to stop the alarm.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

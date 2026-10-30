@@ -107,12 +107,12 @@ fun AlarmListScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "uthoSajib",
+                                text = "HeyUtho",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Math wake-up alarm",
+                                text = "Math Wake-Up Alarm",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

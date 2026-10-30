@@ -38,7 +38,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         if (action == ACTION_WATCHDOG_CHECK) {
             if (AlarmLockManager.isRinging(context)) {
-                val info = AlarmLockManager.getRingingInfo(context) ?: Triple(0, "uthoSajib", "07:00 AM")
+                val info = AlarmLockManager.getRingingInfo(context) ?: Triple(0, "HeyUtho", "07:00 AM")
                 AlarmRingingService.start(context, info.first, info.second, info.third, false)
 
                 if (!AlarmLockManager.isUiForeground) {
@@ -62,7 +62,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         if (action == ACTION_TRIGGER_ALARM) {
             val alarmId = intent.getIntExtra(EXTRA_ALARM_ID, 0)
-            val label = intent.getStringExtra(EXTRA_ALARM_LABEL) ?: "uthoSajib"
+            val label = intent.getStringExtra(EXTRA_ALARM_LABEL) ?: "HeyUtho"
             val hour = intent.getIntExtra(EXTRA_ALARM_HOUR, 7)
             val minute = intent.getIntExtra(EXTRA_ALARM_MINUTE, 0)
 
@@ -108,7 +108,7 @@ class AlarmReceiver : BroadcastReceiver() {
         fun resurrectAlarm(context: Context) {
             if (!AlarmLockManager.isRinging(context)) return
 
-            val info = AlarmLockManager.getRingingInfo(context) ?: Triple(0, "uthoSajib Alarm", "07:00 AM")
+            val info = AlarmLockManager.getRingingInfo(context) ?: Triple(0, "HeyUtho Alarm", "07:00 AM")
             AlarmRingingService.start(context, info.first, info.second, info.third, false)
 
             val activityIntent = Intent(context, MainActivity::class.java).apply {

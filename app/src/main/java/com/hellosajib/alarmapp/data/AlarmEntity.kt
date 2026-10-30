@@ -11,7 +11,7 @@ data class AlarmEntity(
     val minute: Int,
     val isEnabled: Boolean = true,
     val daysOfWeek: String = "", // e.g. "1,2,3,4,5" (1=Mon, 7=Sun). Empty string means one-time alarm.
-    val label: String = "uthoSajib",
+    val label: String = "HeyUtho",
     val vibrate: Boolean = true
 ) {
     fun getFormattedTime(): String {

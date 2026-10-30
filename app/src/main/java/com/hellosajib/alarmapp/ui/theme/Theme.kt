@@ -110,7 +110,7 @@ private val AppShapes = Shapes(
 )
 
 @Composable
-fun UthoSajibTheme(
+fun HeyUthoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

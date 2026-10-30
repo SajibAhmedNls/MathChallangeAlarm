@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="app/src/main/res/drawable/ic_uthosajib_logo.jpg" width="112" alt="uthoSajib logo" />
+<img src="docs/branding/icon.svg" width="112" alt="HeyUtho app icon" />
 
-# uthoSajib
+# HeyUtho
 
 **The alarm clock you can't snooze. Solve 3 math problems to turn it off.**
 
@@ -19,21 +19,21 @@
 
 ---
 
-## Why uthoSajib?
+## Why HeyUtho?
 
-Snooze buttons are too easy to hit half-asleep. uthoSajib makes your brain do a little work first: when the alarm rings, you have to solve **three arithmetic problems in a row** before it stops. By the time you're done, you're awake.
+Snooze buttons are too easy to hit half-asleep. HeyUtho makes your brain do a little work first: when the alarm rings, you have to solve **three arithmetic problems in a row** before it stops. By the time you're done, you're awake.
 
 It's free, open source, has no ads, needs no account, and keeps all data on your device.
 
 ## Screenshots
 
-| Alarms (light) | Alarms (dark) | Create / edit |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/alarms-light.png" width="240" alt="Alarm list in light theme" /> | <img src="docs/screenshots/alarms-dark.png" width="240" alt="Alarm list in dark theme" /> | <img src="docs/screenshots/edit-alarm.png" width="240" alt="Create alarm dialog" /> |
+| First launch | Alarms (light) | Alarms (dark) | Create / edit |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/empty-state.png" width="200" alt="Empty state on first launch" /> | <img src="docs/screenshots/alarms-light.png" width="200" alt="Alarm list in light theme" /> | <img src="docs/screenshots/alarms-dark.png" width="200" alt="Alarm list in dark theme" /> | <img src="docs/screenshots/edit-alarm.png" width="200" alt="Create alarm dialog" /> |
 
 | Math challenge | Wrong answer | Alarm stopped |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/ringing.png" width="240" alt="Ringing screen with math problem" /> | <img src="docs/screenshots/wrong-answer.png" width="240" alt="Wrong answer feedback" /> | <img src="docs/screenshots/solved.png" width="240" alt="Good morning screen" /> |
+| <img src="docs/screenshots/ringing.png" width="200" alt="Ringing screen with math problem" /> | <img src="docs/screenshots/wrong-answer.png" width="200" alt="Wrong answer feedback" /> | <img src="docs/screenshots/solved.png" width="200" alt="Good morning screen" /> |
 
 ## Features
 
@@ -63,11 +63,11 @@ It's free, open source, has no ads, needs no account, and keeps all data on your
 ## Download & install
 
 1. Open the [latest release](https://github.com/SajibAhmedNls/MathChallangeAlarm/releases/latest) on your Android phone.
-2. Download `uthoSajib-<version>.apk`.
+2. Download `HeyUtho-<version>.apk`.
 3. Open the file. If Android asks, allow installs from your browser or file manager.
 4. On first launch, allow **notifications**. On Android 12+, also make sure **Alarms & reminders** is allowed for the app so alarms ring on time.
 
-> **Tip:** Some phones (Xiaomi, Oppo, Vivo, Samsung and others) aggressively stop background apps. For the most reliable alarms, set uthoSajib's battery usage to **Unrestricted** in system settings.
+> **Tip:** Some phones (Xiaomi, Oppo, Vivo, Samsung and others) aggressively stop background apps. For the most reliable alarms, set HeyUtho's battery usage to **Unrestricted** in system settings.
 
 ## Requirements
 
@@ -79,7 +79,7 @@ It's free, open source, has no ads, needs no account, and keeps all data on your
 
 ## Permissions
 
-uthoSajib only asks for what an alarm clock needs:
+HeyUtho only asks for what an alarm clock needs:
 
 | Permission | Why it's needed |
 | --- | --- |
@@ -123,7 +123,7 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 
 ## Architecture
 
-uthoSajib is a single-activity Jetpack Compose app using **MVVM** with a repository layer.
+HeyUtho is a single-activity Jetpack Compose app using **MVVM** with a repository layer.
 
 ```text
 app/src/main/java/com/hellosajib/alarmapp/
@@ -190,7 +190,7 @@ Good first contributions: translations, more problem types (multiplication, diff
 
 ## Credits
 
-- Created by Sajib ([@SajibAhmedNls](https://github.com/SajibAhmedNls)). *"Utho Sajib"* means *"Wake up, Sajib"* in Bengali.
+- Created by Sajib ([@SajibAhmedNls](https://github.com/SajibAhmedNls)). *"Utho"* means *"Wake up"* in Bengali, so HeyUtho is a friendly "Hey, wake up!"
 - Blue redesign and release pipeline by [@toufikforyou](https://github.com/toufikforyou)
 
 ## License

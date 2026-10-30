@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">uthoSajib</string>
-    <string name="math_alarm_notification_title">uthoSajib Alarm Ringing!</string>
+    <string name="app_name">HeyUtho</string>
+    <string name="math_alarm_notification_title">HeyUtho Alarm Ringing!</string>
     <string name="math_alarm_notification_desc">Solve 3 math problems to stop this alarm</string>
 </resources>

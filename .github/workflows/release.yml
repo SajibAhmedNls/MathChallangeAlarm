@@ -94,13 +94,13 @@ jobs:
             echo "::error::Release outputs not found"
             exit 1
           fi
-          cp "$APK" "dist/uthoSajib-${VERSION_NAME}.apk"
-          cp "$AAB" "dist/uthoSajib-${VERSION_NAME}.aab"
+          cp "$APK" "dist/HeyUtho-${VERSION_NAME}.apk"
+          cp "$AAB" "dist/HeyUtho-${VERSION_NAME}.aab"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: uthoSajib-${{ steps.version.outputs.name }}
+          name: HeyUtho-${{ steps.version.outputs.name }}
           path: dist/
           retention-days: 30
 
@@ -109,20 +109,20 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: uthoSajib ${{ steps.version.outputs.name }}
+          name: HeyUtho ${{ steps.version.outputs.name }}
           prerelease: false
           make_latest: true
           generate_release_notes: true
           body: |
             ## Install
-            1. Download **uthoSajib-${{ steps.version.outputs.name }}.apk** below on your Android phone (Android 7.0+).
+            1. Download **HeyUtho-${{ steps.version.outputs.name }}.apk** below on your Android phone (Android 7.0+).
             2. Open it and allow installing from this source if Android asks.
             3. On first launch, allow notifications and exact alarms so alarms can ring on time.
 
             The `.aab` file is for Google Play distribution.
           files: |
-            dist/uthoSajib-${{ steps.version.outputs.name }}.apk
-            dist/uthoSajib-${{ steps.version.outputs.name }}.aab
+            dist/HeyUtho-${{ steps.version.outputs.name }}.apk
+            dist/HeyUtho-${{ steps.version.outputs.name }}.aab
 
       - name: Remove keystore
         if: always()

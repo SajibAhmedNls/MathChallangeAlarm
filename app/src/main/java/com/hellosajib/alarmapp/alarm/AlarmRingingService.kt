@@ -36,7 +36,7 @@ class AlarmRingingService : Service() {
             PowerManager.FULL_WAKE_LOCK or
                     PowerManager.ACQUIRE_CAUSES_WAKEUP or
                     PowerManager.ON_AFTER_RELEASE,
-            "uthoSajib:AlarmRingingWakeLock"
+            "HeyUtho:AlarmRingingWakeLock"
         ).apply {
             acquire(15 * 60 * 1000L) // 15 minutes max
         }
@@ -65,7 +65,7 @@ class AlarmRingingService : Service() {
         }
 
         val alarmId = intent?.getIntExtra(EXTRA_ALARM_ID, 0) ?: 0
-        val label = intent?.getStringExtra(EXTRA_ALARM_LABEL) ?: "uthoSajib Alarm"
+        val label = intent?.getStringExtra(EXTRA_ALARM_LABEL) ?: "HeyUtho Alarm"
         val timeFormatted = intent?.getStringExtra(EXTRA_ALARM_TIME) ?: "07:00 AM"
 
         isExplicitStop = false
@@ -141,7 +141,7 @@ class AlarmRingingService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("uthoSajib: $label")
+            .setContentTitle("HeyUtho: $label")
             .setContentText("Solve 3 math problems to turn off the alarm ($timeFormatted)")
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -157,7 +157,7 @@ class AlarmRingingService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "uthoSajib Wake-up Alarms",
+                "HeyUtho Wake-up Alarms",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "High priority alarms with math challenge"
