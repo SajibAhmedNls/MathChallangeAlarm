@@ -2,8 +2,11 @@ name: Production Release
 
 # Version scheme: <year>.<month>.<patch>.<run number>, e.g. 2026.10.1.7
 # The run number also becomes the Android versionCode, so every release upgrades cleanly.
+# Runs automatically on every push/merge to main, or manually from the Actions tab.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       version_prefix:

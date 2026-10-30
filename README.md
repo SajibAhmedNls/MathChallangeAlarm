@@ -168,7 +168,7 @@ Releases are built, signed and published by GitHub Actions ([`release.yml`](.git
 | `STORE_PASSWORD` | Keystore password |
 | `KEY_PASSWORD` | Key password (key alias must be `upload`) |
 
-**To publish a release:** open *Actions → Production Release → Run workflow*. Leave the version prefix empty to use the current month. The workflow:
+**Releases are automatic:** every push or merged pull request to `main` publishes a new release. You can also start one by hand from *Actions → Production Release → Run workflow* (optionally with a custom version prefix). The workflow:
 
 1. runs the unit tests,
 2. builds a signed APK and AAB,
