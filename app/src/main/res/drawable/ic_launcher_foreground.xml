@@ -1,8 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:width="66dp"
-        android:height="66dp"
-        android:drawable="@drawable/ic_uthosajib_logo"
-        android:gravity="center" />
-</layer-list>
+<!-- Alarm clock with a plus and minus on its face. Drawn inside the 66dp adaptive-icon safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Bells -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M30.5,42.5 A11,11 0 0,1 45.5,27.5 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M77.5,42.5 A11,11 0 0,0 62.5,27.5 Z" />
+    <!-- Legs -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:pathData="M41,75 L36.5,81 M67,75 L71.5,81" />
+    <!-- Face -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M54,58 m-21,0 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0" />
+    <!-- Plus -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,44.5 L54,55.5 M48.5,50 L59.5,50" />
+    <!-- Minus -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M48.5,65 L59.5,65" />
+</vector>

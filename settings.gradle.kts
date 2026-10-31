@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "uthoSajib"
+rootProject.name = "HeyUtho"
 
 include(":app")
